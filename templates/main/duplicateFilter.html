@@ -1,0 +1,67 @@
+{% extends "main/base.html" %}
+
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.css">
+{% endblock %}
+
+{% block content %}
+  <div class="row flex-column flex-sm-row py-2 align-items-sm-center justify-content-between">
+    <div class="col-auto">
+      <h3>Datatable</h3>
+    </div>
+    <div id="toolbar" class="col-auto"></div>
+  </div>
+  <table
+    id="table"
+    data-toggle="table"
+    data-url="{% url request.resolver_match.view_name %}?json=1"
+    data-buttons-toolbar="#toolbar"
+    data-height="790"
+    data-virtual-scroll="true"
+    data-search="true"
+    data-pagination="true"
+    data-page-list="[10, 25, 50, 100, all]">
+    <thead>
+      <tr>
+        <th scope="col" data-sortable="true" data-width="50" data-field="id">ID</th>
+        <th scope="col" data-sortable="true" data-sorter="dateSorter" data-width="150" data-field="time">Date and Time</th>
+        <th scope="col" data-field="title">Stream Title</th>
+        <th scope="col" data-searchable="false" data-field="distance" data-width="50">ED</th>
+        <th scope="col" data-searchable="false" data-formatter="FilterButton" data-width="50"></th>
+      </tr>
+    </thead>
+  </table>
+  <hr>
+  <div class="row flex-column flex-sm-row my-2 align-items-sm-center justify-content-between">
+    <div class="col-auto">
+      <h3>Filtered Entries</h3>
+    </div>
+    <div id="toolbar2" class="col-auto"></div>
+  </div>
+  <table
+    id="table2"
+    data-toggle="table"
+    data-url="{% url request.resolver_match.view_name %}?json=2"
+    data-buttons-toolbar="#toolbar2"
+    data-height="500"
+    data-virtual-scroll="true"
+    data-search="true"
+    data-pagination="true"
+    data-page-list="[10, 25, 50, 100, all]">
+    <thead>
+      <tr>
+        <th scope="col" data-sortable="true" data-width="50" data-field="id">ID</th>
+        <th scope="col" data-sortable="true" data-sorter="dateSorter" data-width="150" data-field="time">Date and Time</th>
+        <th scope="col" data-field="title">Stream Title</th>
+        <th scope="col" data-searchable="false" data-formatter="RevertButton" data-width="50"></th>
+      </tr>
+    </thead>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.js"></script>
+  <script src={% static "main/duplicateFilter.js" %}></script>
+{% endblock %}

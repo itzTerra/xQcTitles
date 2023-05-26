@@ -1,0 +1,128 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'Recent actions' %}</h2>
+        <h3>{% translate 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+  <h2 class="text-center">API</h2>
+  <hr>
+  <div class="row mb-4">
+      <div class="col text-center">
+          <h4>Webhook Event Subscription</h4>
+          <div class="d-flex justify-content-center">
+              <a class="btn btn-primary mx-2 text-body my-2" href="/subscribe?mode=subscribe" target="_blank">Subscribe</a>
+              <a class="btn btn-primary mx-2 text-body my-2" href="/subscribe?mode=unsubscribe" target="_blank">Unsubscribe</a>
+          </div>
+          <a class="btn btn-primary text-body my-2" href={% url "main:listsub" %} target="_blank">View subscriptions</a>
+      </div>
+      <div class="col text-center">
+          <h4>App Access Token</h4>
+          <div class="row justify-content-center">
+              <div class="col-auto text-white bg-success">
+                  <div id="tokentimer">
+                      <span class="days"></span><span class="hours"></span><span class="minutes"></span><span class="seconds"></span>
+                  </div>
+              </div>
+          </div>
+          <a class="btn btn-primary text-body my-2" href={% url "main:gettoken" %} target="_blank">Get</a>
+      </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+  {{ accessTokenExpireDate|json_script:"tokenExpireDate" }}
+  <script>
+      function getTimeRemaining(time){
+        const total = time - Date.parse(new Date());
+        const seconds = Math.floor( (total/1000) % 60 );
+        const minutes = Math.floor( (total/1000/60) % 60 );
+        const hours = Math.floor( (total/(1000*60*60)) % 24 );
+        const days = Math.floor( total/(1000*60*60*24) );
+        return {
+          total,
+          days,
+          hours,
+          minutes,
+          seconds
+        };
+      }
+      function initializeClock(id, endtime) {
+        const clock = document.getElementById(id);
+        const daysSpan = clock.querySelector('.days');
+        const hoursSpan = clock.querySelector('.hours');
+        const minutesSpan = clock.querySelector('.minutes');
+        const secondsSpan = clock.querySelector('.seconds');
+        function updateClock(){
+            const t = getTimeRemaining(endtime);
+            daysSpan.innerHTML = t.days + "d ";
+            hoursSpan.innerHTML = ('0' + t.hours).slice(-2) + "h ";
+            minutesSpan.innerHTML = ('0' + t.minutes).slice(-2) + "m ";
+            secondsSpan.innerHTML = ('0' + t.seconds).slice(-2) + "s ";
+            if (t.total <= 0) {
+              clearInterval(timeinterval);
+              document.getElementById(id).innerHTML = "EXPIRED";
+            }
+        }
+        updateClock(); // run function once at first to avoid delay
+        var timeinterval = setInterval(updateClock,1000);
+      }
+
+      let tokenExpireDate = JSON.parse(document.getElementById('tokenExpireDate').textContent);
+
+      initializeClock('tokentimer', Date.parse(tokenExpireDate));
+
+      $('.btn').click(function(){
+          location.reload();
+      });
+
+  </script>
+{% endblock %}
+
+{% comment %} Added footer {% endcomment %}

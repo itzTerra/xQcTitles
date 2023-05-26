@@ -1,0 +1,234 @@
+<div style="margin-top: 10px">
+  <select id="yearSelect{{cardContentID}}" multiple="multiple" aria-label="Year Select">
+    {% for year in years %}
+    <option value={{year}} selected>{{year}}</option>
+    {% endfor %}
+  </select>
+  <select id="monthSelect{{cardContentID}}" multiple="multiple" aria-label="Month Select">
+    <option value="1" selected>1. January</option>
+    <option value="2" selected>2. February</option>
+    <option value="3" selected>3. March</option>
+    <option value="4" selected>4. April</option>
+    <option value="5" selected>5. May</option>
+    <option value="6" selected>6. June</option>
+    <option value="7" selected>7. July</option>
+    <option value="8" selected>8. August</option>
+    <option value="9" selected>9. September</option>
+    <option value="10" selected>10. November</option>
+    <option value="11" selected>11. October</option>
+    <option value="12" selected>12. December</option>
+  </select>
+</div>
+<div class="row mt-3">
+  <div class="col-7">
+    <canvas id="chart{{cardContentID}}" width="100%" height="100%" aria-label="Category Chart" role="img"><p>Chart Error Fallback</p></canvas>
+  </div>
+  <div id="legend-container{{cardContentID}}" class="col-5"></div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $("#yearSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Year';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: updateChart{{cardContentID}},
+      onSelectAll: updateChart{{cardContentID}},
+      onDeselectAll: updateChart{{cardContentID}}
+    });
+
+    $("#monthSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Month';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: updateChart{{cardContentID}},
+      onSelectAll: updateChart{{cardContentID}},
+      onDeselectAll: updateChart{{cardContentID}},
+      maxHeight: 205
+    });
+    
+    var otherCategories{{cardContentID}} = [];
+    function updateChart{{cardContentID}}(){
+      $.ajax({
+          type: "GET",
+          data: {
+              json: 4,
+              years: $("#yearSelect{{cardContentID}}").val(),
+              months: $("#monthSelect{{cardContentID}}").val(),
+          },
+          success: function(response){
+              myChart{{cardContentID}}.data.labels = response.labels;
+              myChart{{cardContentID}}.data.datasets[0].data = response.data;
+
+              let l = response.labels.length || 1;
+              let colors = [];
+              let borders = [];
+              let incr = 300 / l;
+              for (let i = 0; i < l/2; i += 1){
+                colors.push(`hsl(${i*incr}, 80%, 65%)`);
+                colors.push(`hsl(${(l/2+i)*incr}, 80%, 65%)`);
+                borders.push(`hsl(${i*incr}, 100%, 35%)`);
+                borders.push(`hsl(${(l/2+i)*incr}, 100%, 35%)`);
+              }
+              myChart{{cardContentID}}.data.datasets[0].backgroundColor = colors;
+              myChart{{cardContentID}}.data.datasets[0].borderColor = borders;
+              otherCategories{{cardContentID}} = response.other;
+              myChart{{cardContentID}}.update();
+          },
+          error: function(response){
+              throw(response);
+          },
+      })
+    }
+
+    const getOrCreateLegendList{{cardContentID}} = (chart, id) => {
+      let legendContainer = document.getElementById(id);
+
+      let title = legendContainer.querySelector('p');
+      if (!title) {
+        title = document.createElement('p');
+        title.appendChild(document.createTextNode(chart.data.datasets[0].label))
+        title.style.fontWeight = "bold";
+        title.style.marginBottom = "3px";
+    
+        legendContainer.appendChild(title);
+      }
+
+      let listContainer = legendContainer.querySelector('ul');
+      if (!listContainer) {
+        listContainer = document.createElement('ul');
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'column';
+        listContainer.style.margin = 0;
+        listContainer.style.padding = 0;
+    
+        legendContainer.appendChild(listContainer);
+      }
+    
+      return listContainer;
+    };
+    
+    const htmlLegendPlugin{{cardContentID}} = {
+      id: 'htmlLegend',
+      afterUpdate(chart, args, options) {
+        const ul = getOrCreateLegendList{{cardContentID}}(chart, options.containerID);
+    
+        // Remove old legend items
+        while (ul.firstChild) {
+          ul.firstChild.remove();
+        }
+    
+        // Reuse the built-in legendItems generator
+        const items = chart.options.plugins.legend.labels.generateLabels(chart);
+        
+        items.forEach(item => {
+          const li = document.createElement('li');
+          li.style.alignItems = 'center';
+          li.style.cursor = 'pointer';
+          li.style.display = 'flex';
+          li.style.flexDirection = 'row';
+    
+          li.onclick = () => {
+            const {type} = chart.config;
+            if (type === 'pie' || type === 'doughnut') {
+              // Pie and doughnut charts only have a single dataset and visibility is per item
+              chart.toggleDataVisibility(item.index);
+            } else {
+              chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+            }
+            chart.update();
+          };
+    
+          // Color box
+          const boxSpan = document.createElement('span');
+          boxSpan.style.background = item.fillStyle;
+          boxSpan.style.borderStyle = "solid";
+          boxSpan.style.borderColor = item.strokeStyle;
+          boxSpan.style.borderWidth = item.lineWidth + 'px';
+          boxSpan.style.display = 'inline-block';
+          boxSpan.style.minHeight = '20px';
+          boxSpan.style.marginRight = '10px';
+          boxSpan.style.minWidth = '20px';
+    
+          // Text
+          const textContainer = document.createElement('p');
+          textContainer.style.color = item.fontColor;
+          textContainer.style.margin = 0;
+          textContainer.style.padding = 0;
+          textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+    
+          const text = document.createTextNode(item.text);
+          textContainer.appendChild(text);
+    
+          li.appendChild(boxSpan);
+          li.appendChild(textContainer);
+          ul.appendChild(li);
+        });
+      }
+    };
+
+    const myChart{{cardContentID}} = new Chart("chart{{cardContentID}}", {
+      type: 'pie',
+      data: {
+          labels: [],
+          datasets: [{
+            label: "Categories",
+            data: [],
+            borderWidth: 1
+          }]
+      },
+      options: {
+        plugins: {
+          htmlLegend: {
+            containerID: 'legend-container{{cardContentID}}',
+          },
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context){
+                let label = context.label || '';
+
+                if (label) {
+                    label += ': ';
+                }
+                if (context.parsed !== null) {
+                    label += context.parsed;
+                }
+
+                let sum = 0;
+                context.dataset.data.forEach(function(item){
+                  sum += item;
+                });
+
+                let percent = Math.round(context.parsed / sum * 100);
+                return label + (sum ? ` (${percent > 0 ? percent : "< 1"} %)` : "");
+              },
+              afterLabel: function(context){
+                return context.dataIndex == context.dataset.data.length-1 ? otherCategories{{cardContentID}} : "";
+              }
+            }
+          }
+        },
+      },
+      plugins: [htmlLegendPlugin{{cardContentID}}],
+    });
+
+    updateChart{{cardContentID}}();
+  });
+</script>

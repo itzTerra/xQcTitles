@@ -1,0 +1,63 @@
+{% extends "main/base.html" %}
+
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.css">
+  <link rel="stylesheet" href={% static "main/bootstrap-multiselect.min.css" %} type="text/css"/>
+  <link href={% static "main/statistics.css" %} rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-auto toolbar px-3 py-2 mb-2 gap-3 gap-md-5">
+      <div class="d-flex align-items-center">
+        <label for="timezone" class="col-form-label">Time zone</label>
+        <div class="col-auto ms-2">
+          <select name="timezone" class="form-select form-select-sm" aria-label="TZ Selection">
+            {% for tz in timezones %}
+            <option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Choose Preset </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item {% if t == '0' %}active{% endif %}" href='{% url "main:stats" %}?t=0'>Blank</a></li>
+          <li><a class="dropdown-item {% if t == '381256479' %}active{% endif %}" href='{% url "main:stats" %}?t=381256479'>All</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item {% if t == '34175' %}active{% endif %}" href='{% url "main:stats" %}?t=34175'>Hot 🔥</a></li>
+          <li><a class="dropdown-item {% if t == '3856' %}active{% endif %}" href='{% url "main:stats" %}?t=3856'>Title Overview</a></li>
+          <li><a class="dropdown-item {% if t == '12' %}active{% endif %}" href='{% url "main:stats" %}?t=12'>Counts</a></li>
+          <li><a class="dropdown-item {% if t == '47' %}active{% endif %}" href='{% url "main:stats" %}?t=47'>Charts</a></li>
+        </ul>
+      </div>
+      <div class="d-flex">
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" id="duplicatesCheckbox">
+          <label class="form-check-label" for="duplicatesCheckbox">No Duplicates</label>
+        </div>
+        <i class="bi bi-info-circle ms-2" id="duplicateCheckInfo" data-bs-toggle="popover"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-flex">
+    <div class="add-icon-div">
+      <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="currentColor" class="bi bi-plus-square add-icon" viewBox="0 0 16 16">
+        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+      </svg>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ context|json_script:"djangoContext" }}
+    <script type="text/javascript">window.CSRF_TOKEN = "{{ csrf_token }}";</script> 
+    <script src="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src={% static "main/bootstrap-multiselect.min.js" %}></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src={% static "main/statistics.js" %}></script>
+{% endblock %}

@@ -1,0 +1,87 @@
+<div class="float-start" style="margin-top: 10px">
+  <select id="yearSelect{{cardContentID}}" multiple="multiple" aria-label="Year Select">
+    {% for year in years %}
+    <option value={{year}} selected>{{year}}</option>
+    {% endfor %}
+  </select>
+  <select id="monthSelect{{cardContentID}}" multiple="multiple" aria-label="Month Select">
+    <option value="1" selected>1. January</option>
+    <option value="2" selected>2. February</option>
+    <option value="3" selected>3. March</option>
+    <option value="4" selected>4. April</option>
+    <option value="5" selected>5. May</option>
+    <option value="6" selected>6. June</option>
+    <option value="7" selected>7. July</option>
+    <option value="8" selected>8. August</option>
+    <option value="9" selected>9. September</option>
+    <option value="10" selected>10. November</option>
+    <option value="11" selected>11. October</option>
+    <option value="12" selected>12. December</option>
+  </select>
+</div>
+<table
+  id="table{{cardContentID}}"
+  data-toggle="table"
+  data-url="{% url request.resolver_match.view_name %}?json=1"
+  data-query-params="queryParams{{cardContentID}}"
+  data-height="410"
+  data-virtual-scroll="true"
+  data-search="true"
+  data-pagination="true"
+  data-page-list="[6, 10, 25, 50, 100, all]"
+  data-classes="table table-bordered table-hover table-sm"
+  data-page-size="6">
+  <thead>
+    <tr>
+      <th scope="col" data-sortable="true" data-field="word">Word</th>
+      <th scope="col" data-sortable="true" data-searchable="false" data-width="60" data-field="count">Count</th>
+    </tr>
+  </thead>
+</table>
+
+<script>
+  function queryParams{{cardContentID}}(params){
+    params.years = $("#yearSelect{{cardContentID}}").val();
+    params.months = $("#monthSelect{{cardContentID}}").val();
+    return params;
+  }
+
+  function refreshTable{{cardContentID}}(){
+    $("#table{{cardContentID}}").bootstrapTable("refresh");
+  }
+
+  $(document).ready(function() {
+    $("#yearSelect{{cardContentID}}").multiselect({
+        buttonClass: 'form-select',
+        templates: {
+            button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+        },
+        buttonText: function(options, select) {
+            return 'Select Year';
+        },
+        includeSelectAllOption: true,
+        selectAllText: 'All',
+        selectAllNumber: false,
+        onChange: refreshTable{{cardContentID}},
+        onSelectAll: refreshTable{{cardContentID}},
+        onDeselectAll: refreshTable{{cardContentID}}
+    });
+
+    $("#monthSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Month';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: refreshTable{{cardContentID}},
+      onSelectAll: refreshTable{{cardContentID}},
+      onDeselectAll: refreshTable{{cardContentID}},
+      maxHeight: 205
+    });
+  });
+</script>

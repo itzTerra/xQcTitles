@@ -1,0 +1,132 @@
+<div style="margin-top: 10px">
+  <select id="yearSelect{{cardContentID}}" multiple="multiple" aria-label="Year Select">
+    {% for year in years %}
+    <option value={{year}} selected>{{year}}</option>
+    {% endfor %}
+  </select>
+  <select id="monthSelect{{cardContentID}}" multiple="multiple" aria-label="Month Select">
+    <option value="1" selected>1. January</option>
+    <option value="2" selected>2. February</option>
+    <option value="3" selected>3. March</option>
+    <option value="4" selected>4. April</option>
+    <option value="5" selected>5. May</option>
+    <option value="6" selected>6. June</option>
+    <option value="7" selected>7. July</option>
+    <option value="8" selected>8. August</option>
+    <option value="9" selected>9. September</option>
+    <option value="10" selected>10. November</option>
+    <option value="11" selected>11. October</option>
+    <option value="12" selected>12. December</option>
+  </select>
+</div>
+<div class="mt-2 mb-1" style="height: 350px">
+  <canvas id="chart{{cardContentID}}" width="100" height="100" aria-label="Entry/h Chart" role="img"><p>Chart Error Fallback</p></canvas>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $("#yearSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Year';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: updateChart{{cardContentID}},
+      onSelectAll: updateChart{{cardContentID}},
+      onDeselectAll: updateChart{{cardContentID}}
+    });
+
+    $("#monthSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Month';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: updateChart{{cardContentID}},
+      onSelectAll: updateChart{{cardContentID}},
+      onDeselectAll: updateChart{{cardContentID}},
+      maxHeight: 205
+    });
+    
+    function updateChart{{cardContentID}}(){
+      $.ajax({
+          type: "GET",
+          data: {
+              json: 7,
+              years: $("#yearSelect{{cardContentID}}").val(),
+              months: $("#monthSelect{{cardContentID}}").val(),
+          },
+          success: function(response){
+              myChart{{cardContentID}}.data.datasets[0].data = response.data;
+
+              myChart{{cardContentID}}.update();
+          },
+          error: function(response){
+              throw(response);
+          },
+      })
+    }
+
+    const myChart{{cardContentID}} = new Chart("chart{{cardContentID}}", {
+      type: 'line',
+      data: {
+          labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
+          datasets: [{
+            label: "# of Entries",
+            data: [],
+            fill: true,
+            borderColor: 'rgb(0, 188, 140)',
+          }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          y: {
+            min: 0,
+            ticks: {
+              beginAtZero: true,
+              precision: 0
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              title: function(context){
+                let label = context[0].label || '';
+
+                if (label) {
+                  label = String(label).padStart(2, '0');
+                  label = `${label}:00 — ${label}:59`;
+                }
+
+                return label;
+              }
+            }
+          }
+        },
+      }
+    });
+
+    updateChart{{cardContentID}}();
+    timezoneCharts.push(updateChart{{cardContentID}});
+  });
+</script>

@@ -1,0 +1,78 @@
+{% extends "main/base.html" %}
+
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.css">
+{% endblock %}
+
+{% block content %}
+  <p class="lead pt-2">
+    <strong>About <i class="bi bi-chevron-double-right"></i></strong> a database which tracks xQc's titles in real-time using 
+    <a href="https://dev.twitch.tv/docs/api/" target="_blank" class="text-nowrap">
+      Twitch API <i class="bi bi-box-arrow-up-right initialism"></i>
+    </a> with nerdy statistics and fun title generator
+  </p>
+  <hr>
+  <div class="row">
+    <div class="col-auto">
+      <h3>Datatable</h3>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="d-flex flex-column flex-md-row gap-2 gap-md-4 align-items-end align-items-md-center bg-dark rounded-top p-2">
+        <div class="col-auto d-flex">
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="duplicatesCheckbox">
+            <label class="form-check-label" for="duplicatesCheckbox">No Duplicates</label>
+          </div>
+          <i class="bi bi-info-circle ms-2" id="duplicateCheckInfo" data-bs-toggle="popover"></i>
+        </div>
+        <div class="col-auto">
+          <div class="row g-1">
+            <div class="col-auto">
+              <label for="timezone" class="col-form-label">Time zone</label>
+            </div>
+            <div class="col-auto">
+              <select name="timezone" class="form-select" aria-label="TZ Selection">
+                {% for tz in timezones %}
+                <option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="toolbar" class="col-auto"></div>
+      </div>
+    </div>
+  </div>
+  <table
+    id="table"
+    data-toggle="table"
+    data-url="{% url request.resolver_match.view_name %}?json"
+    data-query-params="queryParams"
+    data-buttons-toolbar="#toolbar"
+    data-height="785"
+    data-virtual-scroll="true"
+    data-search="true"
+    data-show-refresh="true"
+    data-show-export="true"
+    data-buttons-align="right"
+    data-pagination="true"
+    data-page-list="[10, 25, 50, 100, all]">
+    <thead>
+      <tr>
+        <th scope="col" data-sortable="true" data-sorter="dateSorter" data-width="150" data-field="time">Date and Time</th>
+        <th scope="col" data-field="title">Stream Title</th>
+        <th scope="col" data-width="110" data-field="category">Category</th>
+      </tr>
+    </thead>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  {{ context|json_script:"djangoContext" }}
+  <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-table@1.20.2/dist/bootstrap-table.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-table@1.20.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
+  <script src={% static "main/index.js" %}></script>
+{% endblock %}

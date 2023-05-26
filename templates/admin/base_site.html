@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}xQc Titles - Admin{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.0/dist/darkly/bootstrap.min.css" integrity="sha256-ktwWBA2+CZfBk4rNEMU/3ZPepAIWbPKFq2rIlo/NxSo=" crossorigin="anonymous">
+    <link href={% static "admin/admin.css" %} rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href={% static "img/favicon.ico" %} type="image/x-icon">
+    <style>
+      /* Bootstrap issues with admin */
+      * { box-sizing: unset; }
+      div.module caption { caption-side: top !important; }
+      .collapse { display: block !important; }
+    </style>
+{% endblock %}
+
+{% block bodyclass%}bg-darker{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-sm navbar-dark py-1 w-100">
+  <div class="container-md flex-wrap">
+    <a class="navbar-brand" href={% url "main:index" %}>
+        <img src={% static "img/favicon.ico" %} alt="" width="32" height="32" class="d-inline-block align-top me-2">
+        <span class="{% if request.resolver_match.view_name == 'main:index' %}active{% endif %}">xQc Titles</span>
+    </a>
+    {% if not user.is_authenticated %}
+    <a class="btn btn-outline-success btn-sm py-1 px-2 ms-auto" href="/admin" role="button">Login</a>
+    {% else %}
+    <div class="text-end d-flex flex-column flex-shrink-0 ms-auto">
+        <span>Logged in as: <strong>{% firstof user.get_short_name user.get_username %}</strong></span>
+        <div>
+          <a class="px-1" href={% url "main:index" %}>View site</a>
+          <a class="px-1" href="{% url 'admin:logout' %}">Log out</a>
+        </div>
+    </div>
+    {% endif %}
+</nav>
+{% endblock %}
+
+{% comment %} Complete override {% endcomment %}

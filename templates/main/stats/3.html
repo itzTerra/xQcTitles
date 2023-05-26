@@ -1,0 +1,147 @@
+<div class="d-flex gap-1" style="margin-top: 10px">
+  <select id="yearSelect{{cardContentID}}" multiple="multiple" aria-label="Year Select">
+    {% for year in years %}
+    <option value={{year}} selected>{{year}}</option>
+    {% endfor %}
+  </select>
+  <select id="monthSelect{{cardContentID}}" multiple="multiple" aria-label="Month Select">
+    <option value="1" selected>1. January</option>
+    <option value="2" selected>2. February</option>
+    <option value="3" selected>3. March</option>
+    <option value="4" selected>4. April</option>
+    <option value="5" selected>5. May</option>
+    <option value="6" selected>6. June</option>
+    <option value="7" selected>7. July</option>
+    <option value="8" selected>8. August</option>
+    <option value="9" selected>9. September</option>
+    <option value="10" selected>10. November</option>
+    <option value="11" selected>11. October</option>
+    <option value="12" selected>12. December</option>
+  </select>
+  <div class="spinner-border text-success ms-auto hidden" role="status" id="loading{{cardContentID}}">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<h4 class="fw-light text-center my-4">reading <strong id="entryCount{{cardContentID}}">X</strong> titles from <strong id="days{{cardContentID}}">X</strong> days</h4>
+<div class="row align-items-center justify-content-between">
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Number of characters (including whitespace, punctuation...) in titles combined">
+      Character Count<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h4 class="align-self-end" id="charCount{{cardContentID}}">XXX</h4>
+  </div>
+  <div class="col-auto"><i class="bi bi-chevron-double-right fs-4"></i></div>
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Character Count / Title Count">
+      Avg. Title Length<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h4 class="align-self-end" id="entryLength{{cardContentID}}">XXX</h4>
+  </div>
+</div>
+<div class="row align-items-center gx-md-4 gx-lg-5 mt-2">
+  <div class="col-auto"><i class="bi bi-chevron-right fs-4"></i></div>
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="% of alphabet letters in Character Count">
+      Letter Usage<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h5 class="align-self-end" id="letterUsage{{cardContentID}}">XX %</h5>
+  </div>
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="% of capital alphabet letters in Character Count">
+      Capital Letter Usage<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h5 class="align-self-end" id="capitalLetterUsage{{cardContentID}}">XX %</h5>
+  </div>
+</div>
+<div class="row align-items-center justify-content-between mt-4">
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Number of emojis in titles combined">
+      Emoji Count<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h4 class="align-self-end" id="emojiCount{{cardContentID}}">XXX</h4>
+  </div>
+  <div class="col-auto"><i class="bi bi-chevron-double-right fs-4"></i></div>
+  <div class="col-auto d-flex flex-column">
+    <span class="abbr-tooltip fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Emoji Count / Title Count">
+      Emoji per Title<sup><i class="bi bi-question"></i></sup>
+    </span>
+    <h4 class="align-self-end" id="emojiPerEntry{{cardContentID}}">XXX</h4>
+  </div>
+</div>
+
+<script>
+  function refreshData{{cardContentID}}(){
+      $.ajax({
+        type: "GET",
+        data: {
+            json: 3,
+            years: $("#yearSelect{{cardContentID}}").val(),
+            months: $("#monthSelect{{cardContentID}}").val(),
+        },
+        beforeSend: function(c){
+          $("#loading{{cardContentID}}").removeClass("hidden");
+        },
+        success: function(response){
+          let entryCount = response.entryCount;
+          let charCount = response.charCount;
+          $("#entryCount{{cardContentID}}").html(entryCount);
+          $("#days{{cardContentID}}").html(response.days);
+          $("#charCount{{cardContentID}}").html(charCount);
+          $("#entryLength{{cardContentID}}").html(Math.round(charCount / entryCount) || 0);
+          $("#letterUsage{{cardContentID}}").html(response.letterUsage + " %");
+          $("#capitalLetterUsage{{cardContentID}}").html(response.capitalLetterUsage + " %");
+          $("#emojiCount{{cardContentID}}").html(response.emojiCount);
+          $("#emojiPerEntry{{cardContentID}}").html((response.emojiCount / entryCount || 0).toFixed(2));
+        },
+        error: function(response){
+            throw(response);
+        },
+        complete: function(c){
+          $("#loading{{cardContentID}}").addClass("hidden");
+        }
+    });
+  }
+
+  $(document).ready(function() {
+    $("#yearSelect{{cardContentID}}").multiselect({
+        buttonClass: 'form-select',
+        templates: {
+            button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+        },
+        buttonText: function(options, select) {
+            return 'Select Year';
+        },
+        includeSelectAllOption: true,
+        selectAllText: 'All',
+        selectAllNumber: false,
+        onChange: refreshData{{cardContentID}},
+        onSelectAll: refreshData{{cardContentID}},
+        onDeselectAll: refreshData{{cardContentID}}
+    });
+
+    $("#monthSelect{{cardContentID}}").multiselect({
+      buttonClass: 'form-select',
+      templates: {
+          button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+      },
+      buttonText: function(options, select) {
+          return 'Select Month';
+      },
+      includeSelectAllOption: true,
+      selectAllText: 'All',
+      selectAllNumber: false,
+      onChange: refreshData{{cardContentID}},
+      onSelectAll: refreshData{{cardContentID}},
+      onDeselectAll: refreshData{{cardContentID}},
+      maxHeight: 205
+    });
+  });
+
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  })
+
+  refreshData{{cardContentID}}();
+</script>

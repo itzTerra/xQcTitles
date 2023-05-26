@@ -1,0 +1,23 @@
+<table
+  id="table{{cardContentID}}"
+  data-toggle="table"
+  data-url="{% url request.resolver_match.view_name %}?json=5"
+  data-height="410"
+  data-virtual-scroll="true"
+  data-search="true"
+  data-pagination="true"
+  data-page-list="[6, 10, 25, 50, 100, all]"
+  data-classes="table table-bordered table-hover table-sm"
+  data-page-size="6">
+  <thead>
+    <tr>
+      <th scope="col" data-sortable="true" data-sorter="dateSorter" data-width="150" data-field="time">Date and Time</th>
+      <th scope="col" data-field="title">Stream Title</th>
+      <th scope="col" data-sortable="true" data-width="60" data-field="length">Length</th>
+    </tr>
+  </thead>
+</table>
+
+<script>
+  timezoneTables.push($("#table{{cardContentID}}"));
+</script>

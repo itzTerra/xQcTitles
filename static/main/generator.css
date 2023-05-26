@@ -1,0 +1,7 @@
+#minLength{
+    width: 80px;
+}
+
+.form-label, .col-form-label{
+    font-weight: bolder;
+}
