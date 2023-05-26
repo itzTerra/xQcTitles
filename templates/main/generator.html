@@ -12,7 +12,7 @@
     <span class="text-light">Current model is learned from <strong>716</strong> titles, last from <strong>28/07/2022</strong></span>
   </div>
   <p class="lead">The Generator uses a character-based 
-    <strong class="abbr-tooltip initialism" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recurrent Neural Network">RNN</strong>, which generates new characters to add to a starter input. 
+    <strong class="abbr-tooltip initialism" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recurrent Neural Network">RNN</strong>, which generates new characters to add to a starter input.
     <a href="https://www.tensorflow.org/text/tutorials/text_generation" target="_blank">
       Learn more <i class="bi bi-box-arrow-up-right initialism"></i>
     </a>
@@ -26,7 +26,7 @@
             <label for="startInput" class="col-form-label">Title Beginning</label>
           </div>
           <div class="col">
-            <input type="text" class="form-control" id="startInput" placeholder="Default" aria-describedby="startInputInfo">
+            <input type="text" class="form-control" id="startInput" placeholder="Default" maxlength="100" aria-describedby="startInputInfo">
           </div>
         </div>
         <div id="startInputInfo" class="form-text">Default is a random character from the learned vocabulary.</div>
@@ -71,6 +71,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script type="text/javascript">window.CSRF_TOKEN = "{{ csrf_token }}";</script> 
+  <script type="text/javascript">window.CSRF_TOKEN = "{{ csrf_token }}";</script>
   <script src={% static "main/generator.js" %}></script>
 {% endblock %}

@@ -125,7 +125,9 @@ STATIC_URL = '/static/'
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
+MEDIA_ROOT = '/home/Terraa/xQcowTitles/media'
 MEDIA_URL = '/media/'
+STATIC_ROOT = '/home/Terraa/xQcowTitles/static'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),

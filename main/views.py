@@ -9,8 +9,9 @@ import datetime, requests, json, hmac, hashlib, secrets
 from dateutil import relativedelta
 import emoji, editdistance
 from collections import Counter
-from .titleGen import *
 from os import getenv
+
+from .titleGen import *
 
 from .models import Entry, APIData, EntryFilter
 
@@ -50,12 +51,12 @@ def Entries(includeDuplicates = None, ordering = "-time", years = None, months =
         res =  Entry.objects
     else:
         res = Entry.objects.exclude(id__in=GetFilterIDs("Duplicates"))
-    
+
     if years is not None:
         res = res.filter(time__year__in=years)
     if months is not None:
         res = res.filter(time__month__in=months)
-    
+
     if isinstance(ordering, list):
         return res.order_by(*ordering)
     else:
@@ -69,8 +70,8 @@ def index(request):
         return HttpResponse("done")
     if 'json' in request.GET:
         return JsonResponse([{
-            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
-            "title": f'<div class="text-break">{entry.title}</div>', 
+            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
+            "title": f'<div class="text-break">{entry.title}</div>',
             "category": entry.category} for entry in Entries(request.GET.get("duplicates", "no") == "yes")], safe=False)
 
     return render(request, 'main/index.html', {'timezones': TIMEZONES,
@@ -81,7 +82,7 @@ def index(request):
 # ----------------------- Statistics -----------------------
 
 def GetWordList(string: str, lowercase = True):
-    titles = string.translate(str.maketrans('?!\n"()[]{}|;/<>&=', 
+    titles = string.translate(str.maketrans('?!\n"()[]{}|;/<>&=',
                                             "                 "))
     more_filters = ['. ', ' .', '..', '...', '....', '^ ', ' ^', '* ', ' *', ', ', ' ,', '- ', ' -', '_ ', ' _', ' : ', ' # ', '@ ', '— ', ' —', ' ~ ', ' + ', ' - ', ' $ ']
     while True:
@@ -93,7 +94,7 @@ def GetWordList(string: str, lowercase = True):
                 titles = n
         if not action:
             break
-    
+
     emoji.replace_emoji(titles, replace=' ')
     titles = titles.encode("ascii", "ignore").decode()
     if lowercase:
@@ -106,7 +107,7 @@ def s8Data(entries, div):
     titles = " ".join(list(entries.values_list("title", flat=True)))
     charCount = len(titles) - entryCount
     return {"entryCount": round(entryCount / div, 1),
-            "charCount": round(charCount / div), 
+            "charCount": round(charCount / div),
             "emojiCount": round(emoji.emoji_count(titles, unique=False) / div, 1),
             "timePeriod": div}
 
@@ -134,10 +135,10 @@ def s3(params:QueryDict = None, init = False):
         years = [d.year for d in Entries().dates("time", "year")]
         return {"years": years,
                 "cardContentID": params.get("cardContentID", "0")}
-    
+
     entries = Entries(years=params.getlist("years[]"), months=params.getlist("months[]"))
     titles = " ".join(list(entries.values_list("title", flat=True)))
-    
+
     entryCount = entries.count()
     charCount = len(titles) - len(entries)
     letterCount = 0
@@ -150,7 +151,7 @@ def s3(params:QueryDict = None, init = False):
 
     return {"entryCount": entryCount,
             "days": entries.dates("time", "day").count(),
-            "charCount": charCount, 
+            "charCount": charCount,
             "letterUsage": Percent(letterCount, charCount),
             "capitalLetterUsage": Percent(capitalLetterCount, charCount),
             "emojiCount": emoji.emoji_count(titles)}
@@ -160,7 +161,7 @@ def s4(params:QueryDict = None, init = False):
         years = [d.year for d in Entries().dates("time", "year")]
         return {"years": years,
                 "cardContentID": params.get("cardContentID", "0")}
-    
+
     categories = list(Entries(years=params.getlist("years[]"), months=params.getlist("months[]")).values_list("category", flat=True))
     c = Counter(categories).most_common()
     other = [i for i in c[10:]]
@@ -179,20 +180,20 @@ def s5(params:QueryDict = None, init = False):
 
     entries = Entries(ordering=[Length("title").desc(), "-time"])
     return [{
-            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
-            "title": f'<div class="text-break">{entry.title}</div>', 
+            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
+            "title": f'<div class="text-break">{entry.title}</div>',
             "length": len(entry.title)} for entry in entries]
 
 def s6(params:QueryDict = None, init = False):
     if init:
         return {"cardContentID": params.get("cardContentID", "0")}
-    entries = sorted(Entries(), 
-                    key=lambda e: (Percent(sum(1 for c in e.title if c.isupper()), sum(1 for c in e.title if c.isalpha())), 
+    entries = sorted(Entries(),
+                    key=lambda e: (Percent(sum(1 for c in e.title if c.isupper()), sum(1 for c in e.title if c.isalpha())),
                                 sum(1 for c in e.title if c.isalpha())), reverse=True)
     amounts = [(sum(1 for c in entry.title if c.isupper()), sum(1 for c in entry.title if c.isalpha())) for entry in entries]
     return [{
-            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
-            "title": f'<div class="text-break">{entry.title}</div>', 
+            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
+            "title": f'<div class="text-break">{entry.title}</div>',
             "capsAmount": amounts[i][0],
             "caps%": Percent(amounts[i][0], amounts[i][1])} for i, entry in enumerate(entries)]
 
@@ -201,7 +202,7 @@ def s7(params:QueryDict = None, init = False):
         years = [d.year for d in Entries().dates("time", "year")]
         return {"years": years,
                 "cardContentID": params.get("cardContentID", "0")}
-    
+
     data = Entries(years=params.getlist("years[]"), months=params.getlist("months[]")
     ).annotate(
         hour = ExtractHour('time'),
@@ -223,7 +224,7 @@ def s8(params:QueryDict = None, init = False):
     dateTo = latestDate - datetime.timedelta(days=latestDate.weekday())
     div = (dateTo - dateFrom).days // 7
     weekData = s8Data(entries.filter(time__range=(dateFrom, dateTo)), div)
-    
+
     # Monthly stats
     dateFrom = datetime.date(2021, 1, 1)
     dateTo = datetime.date(latestDate.year, latestDate.month, 1)
@@ -237,7 +238,7 @@ def s8(params:QueryDict = None, init = False):
     yearData = s8Data(entries.filter(time__range=(dateFrom, dateTo)), div)
 
     return {"weekData": weekData,
-            "monthData": monthData, 
+            "monthData": monthData,
             "yearData": yearData,
             "cardContentID": params.get("cardContentID", "0")}
 
@@ -270,7 +271,7 @@ statArgs = {
     "7": s7,
     "8": s8,
     "9": s9,
-}    
+}
 
 def statistics(request):
     if request.method == "POST":
@@ -303,14 +304,14 @@ def generator(request):
         global model
         if not model:
             model = load_generator_model()
-            
+
         try:
             startString = request.POST.get("startInput")
             minLength = int(request.POST.get("minLength"))
             temperature = float(request.POST.get("temperature"))
         except Exception as e:
             return JsonResponse({"result": str(e)}, safe=False)
-        
+
         if not startString:
             startString = getRandomChar()
 
@@ -318,7 +319,7 @@ def generator(request):
         entries = sorted(Entries(False).exclude(id__in=GetFilterIDs("AI")), key=lambda e: editdistance.eval(result, e.title))[:3]
         distances = [editdistance.eval(result, e.title) for e in entries]
         similars = [
-            {"time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
+            {"time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
             "title": f'<div class="text-break">{entry.title}</div>',
             "distance": distances[i]} for i, entry in enumerate(entries)]
 
@@ -415,18 +416,18 @@ def duplicate_filter(request):
             t0 = None
             ed = 999
             for entry in Entries(False):
-                if t0: 
+                if t0:
                     ed = editdistance.eval(t0, entry.title)
                 t0 = entry.title
-                data.append({"id": entry.id, 
-                    "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
+                data.append({"id": entry.id,
+                    "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
                     "title": f'<div class="text-break">{entry.title}</div>',
                     "distance": ed})
         else:
             entries = Entry.objects.filter(id__in=GetFilterIDs("Duplicates"))
             data = [
-                {"id": entry.id, 
-                "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
+                {"id": entry.id,
+                "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
                 "title": f'<div class="text-break">{entry.title}</div>'} for entry in entries]
         return JsonResponse(data, safe=False)
 
@@ -452,10 +453,10 @@ def AI_filter(request):
             entries = Entries(False).exclude(id__in=GetFilterIDs("AI"))
         else:
             entries = Entry.objects.filter(id__in=GetFilterIDs("AI"))
-        
+
         data = [
-            {"id": entry.id, 
-            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'), 
+            {"id": entry.id,
+            "time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
             "title": f'<div class="text-break">{entry.title}</div>'} for entry in entries]
         return JsonResponse(data, safe=False)
 

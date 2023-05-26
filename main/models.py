@@ -16,6 +16,7 @@ class APIData(models.Model):
     subscriptionID = models.CharField(max_length=255, default="0")
     verificationSecret = models.CharField(max_length=255, default="0")
 
+
 class EntryFilter(models.Model):
     name = models.CharField(max_length=255)
     entryIDs = models.JSONField(default=list)
