@@ -9,4 +9,4 @@ Django website which tracks [**xQc**](https://www.twitch.tv/xqc)'s titles in rea
 - Statistics of the titles
 - AI Title Generator *(character-based RNN)*
   
-[**Bootstrap Table**](https://bootstrap-table.com/) was a huge help and the core of this project.
+[**Bootstrap Table**](https://bootstrap-table.com/) was a huge help and is the core component of the UI.
