@@ -8,7 +8,6 @@ idx2char = np.array(vocab)
 
 v = [c for c in vocab if c not in {"\\", ">", "=", "\U000e0000", '️', "_", "/", "^", "}", "|", "&", "?", "]", ",", "-", ".", ")", "%", ":"}]
 
-# MODEL_PATH = "./static/main/GeneratorModel"
 MODEL_PATH = "/home/Terraa/xQcowTitles/static/main/GeneratorModel"
 
 def load_generator_model():

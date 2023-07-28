@@ -18,7 +18,7 @@
 
 {% block header %}
 <nav class="navbar navbar-expand-sm navbar-dark py-1 w-100">
-  <div class="container-md flex-wrap">
+  <div class="container-fluid container-md flex-wrap">
     <a class="navbar-brand" href={% url "main:index" %}>
         <img src={% static "img/favicon.ico" %} alt="" width="32" height="32" class="d-inline-block align-top me-2">
         <span class="{% if request.resolver_match.view_name == 'main:index' %}active{% endif %}">xQc Titles</span>

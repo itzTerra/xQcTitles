@@ -16,48 +16,54 @@
   </head>
   <body class="bg-darker">
     <nav class="navbar navbar-expand-sm navbar-dark py-0 w-100">
-      <div class="container-md flex-wrap">
+      <div class="container-fluid container-lg flex-wrap">
         <a class="navbar-brand" href={% url "main:index" %}>
             <img src={% static "img/favicon.ico" %} alt="" width="32" height="32" class="d-inline-block align-top me-2">
             <span class="{% if request.resolver_match.view_name == 'main:index' %}active{% endif %}">xQc Titles</span>
         </a>
         <span class="sep align-self-stretch"></span>
-        <button class="navbar-toggler my-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler my-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav ms-sm-4">
-              <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.view_name == 'main:stats' %}active{% endif %}" href='{% url "main:stats" %}?t=34175'>Statistics</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.view_name == 'main:generator' %}active{% endif %}" href={% url "main:generator" %}>Title Generator</a>
-              </li>
-          </ul>
-          {% if not user.is_authenticated %}
-          <a class="btn btn-outline-success btn-sm my-2 ms-auto" href="/admin" role="button">Login</a>
-          {% else %}
-          <ul class="navbar-nav justify-content-end ms-auto me-4">
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.view_name == 'main:duplicateFilter' %}active{% endif %}" href={% url "main:duplicateFilter" %}>Duplicates Filter</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.view_name == 'main:AIFilter' %}active{% endif %}" href={% url "main:AIFilter" %}>AI Filter</a>
-            </li>
-          </ul>
-          <div class="text-end d-flex flex-column flex-shrink-0 ms-auto">
-              <span>Logged in as: <strong>{% firstof user.get_short_name user.get_username %}</strong></span>
-              <div>
-                <a class="px-1" href={% url "admin:index" %}>View admin</a>
-                <a class="px-1" href="{% url 'admin:logout' %}">Log out</a>
-              </div>
-          </div>
-          {% endif %}
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body align-items-center">
+                <ul class="navbar-nav ms-sm-4">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.view_name == 'main:stats' %}active{% endif %}" href='{% url "main:stats" %}?t=34175'>Statistics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.view_name == 'main:generator' %}active{% endif %}" href={% url "main:generator" %}>Title Generator</a>
+                    </li>
+                </ul>
+                {% if not user.is_authenticated %}
+                <a class="btn btn-outline-success btn-sm my-2 ms-auto" href="/admin" role="button">Login</a>
+                {% else %}
+                <ul class="navbar-nav justify-content-end ms-auto me-4">
+                    <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'main:duplicateFilter' %}active{% endif %}" href={% url "main:duplicateFilter" %}>Duplicates Filter</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'main:AIFilter' %}active{% endif %}" href={% url "main:AIFilter" %}>AI Filter</a>
+                    </li>
+                </ul>
+                <div class="text-end d-flex flex-column flex-shrink-0 ms-auto">
+                    <span>Logged in as: <strong>{% firstof user.get_short_name user.get_username %}</strong></span>
+                    <div>
+                        <a class="px-1" href={% url "admin:index" %}>View admin</a>
+                        <a class="px-1" href="{% url 'admin:logout' %}">Log out</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
       </div>
     </nav>
     <main>
-      <div class="container-lg bg-background rounded-bottom" id="content">
+      <div class="container-fluid container-lg bg-background rounded-bottom" id="content">
       {% block content %}Content{% endblock %}
       </div>
     </main>
