@@ -11,7 +11,7 @@ import emoji, editdistance
 from collections import Counter
 from os import getenv
 
-from .titleGen import *
+# from .title_gen_inference import generate_text, load_generator_model, getRandomChar
 
 from .models import Entry, APIData, EntryFilter
 
@@ -297,36 +297,36 @@ def statistics(request):
                                                         "t": request.GET.get("t", 0)})
 
 # ----------------------- Generator -----------------------
-model = None
+# model = None
 
-def generator(request):
-    if request.method == "POST":
-        global model
-        if not model:
-            model = load_generator_model()
+# def generator(request):
+#     if request.method == "POST":
+#         global model
+#         if not model:
+#             model = load_generator_model()
 
-        try:
-            startString = request.POST.get("startInput")
-            minLength = int(request.POST.get("minLength"))
-            temperature = float(request.POST.get("temperature"))
-        except Exception as e:
-            return JsonResponse({"result": str(e)}, safe=False)
+#         try:
+#             startString = request.POST.get("startInput")
+#             minLength = int(request.POST.get("minLength"))
+#             temperature = float(request.POST.get("temperature"))
+#         except Exception as e:
+#             return JsonResponse({"result": str(e)}, safe=False)
 
-        if not startString:
-            startString = getRandomChar()
+#         if not startString:
+#             startString = getRandomChar()
 
-        result = generate_text(model, startString, temperature, minLength)
-        entries = sorted(Entries(False).exclude(id__in=GetFilterIDs("AI")), key=lambda e: editdistance.eval(result, e.title))[:3]
-        distances = [editdistance.eval(result, e.title) for e in entries]
-        similars = [
-            {"time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
-            "title": f'<div class="text-break">{entry.title}</div>',
-            "distance": distances[i]} for i, entry in enumerate(entries)]
+#         result = generate_text(model, startString, temperature, minLength)
+#         entries = sorted(Entries(False).exclude(id__in=GetFilterIDs("AI")), key=lambda e: editdistance.eval(result, e.title))[:3]
+#         distances = [editdistance.eval(result, e.title) for e in entries]
+#         similars = [
+#             {"time": timezone.localtime(entry.time).strftime('%d/%m/%Y | %H:%M'),
+#             "title": f'<div class="text-break">{entry.title}</div>',
+#             "distance": distances[i]} for i, entry in enumerate(entries)]
 
-        return JsonResponse({"result": result,
-                            "similars": similars}, safe=False)
+#         return JsonResponse({"result": result,
+#                             "similars": similars}, safe=False)
 
-    return render(request, 'main/generator.html')
+#     return render(request, 'main/generator.html')
 
 # ----------------------- Admin -----------------------
 

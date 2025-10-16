@@ -35,9 +35,9 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.view_name == 'main:stats' %}active{% endif %}" href='{% url "main:stats" %}?t=34175'>Statistics</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.view_name == 'main:generator' %}active{% endif %}" href={% url "main:generator" %}>Title Generator</a>
-                    </li>
+                    </li> -->
                 </ul>
                 {% if not user.is_authenticated %}
                 <a class="btn btn-outline-success btn-sm my-2 ms-auto" href="/admin" role="button">Login</a>

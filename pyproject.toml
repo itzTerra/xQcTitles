@@ -1,0 +1,12 @@
+[project]
+name = "xqctitles"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2.7",
+    "editdistance>=0.8.1",
+    "emoji>=2.15.0",
+    "python-dateutil>=2.9.0.post0",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.5",
+]

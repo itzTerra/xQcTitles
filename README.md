@@ -9,7 +9,7 @@ Django website which tracks [**xQc**](https://www.twitch.tv/xqc)'s titles in rea
   - Search anything and sort by date
   - Download in different formats
 - Statistics of the titles
-- AI Title Generator *(character-based RNN)*
+- ~~AI Title Generator *(character-based RNN)*~~
  
 ### Made with
 - [**Django**](https://www.djangoproject.com/) in the back-end

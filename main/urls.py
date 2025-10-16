@@ -7,7 +7,7 @@ app_name = 'main'
 urlpatterns = [
     path('', views.index, name="index"),
     path('stats/', views.statistics, name="stats"),
-    path('generator/', views.generator, name="generator"),
+    # path('generator/', views.generator, name="generator"),
     path('duplicateFilter/', views.duplicate_filter, name="duplicateFilter"),
     path('AIFilter/', views.AI_filter, name="AIFilter"),
     path("admin/", admin.site.urls),
